@@ -11,7 +11,7 @@ const refs = {
 let page = 1;
 let pageSize = 40;
 refs.loadMoreBtn.classList.add('is-hidden');
-let totalPictures = 0;
+
 
 
 refs.submitBtn.addEventListener('click', handleSearch);
@@ -36,21 +36,17 @@ function handleSearch(e) {
     clearMarkUp();
 
     fetchPictures(inputValue).then(fetchResponse);
-    // showTotalNumber()
-    refs.loadMoreBtn.classList.remove('is-hidden');
+    
 }
 
-// async function showTotalNumber() {
-//     return await  Notiflix.Notify.success(`Hooray! We found ${totalPictures} images.`);
-// }
-
-
-function fetchPictures(name) {
+async function fetchPictures(name) {
     const url = 'https://pixabay.com/api/';
 
-    return fetch(`${url}?key=26995225-4fa3fe4f15fe1635ebf8d0ee7&q=${name}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=${pageSize}`)
+    return await fetch(`${url}?key=26995225-4fa3fe4f15fe1635ebf8d0ee7&q=${name}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=${pageSize}`)
   .then(response => {
     if (!response.ok) {
+      refs.loadMoreBtn.classList.add('is-hidden');
+      Notiflix.Notify.failure("We're sorry, but you've reached the end of search results.")
       throw new Error(response.status);
     }
     return response.json();
@@ -58,31 +54,31 @@ function fetchPictures(name) {
 }
 
 function fetchResponse(pictures) {
-  
-    const pictureList = pictures.hits.map(picture => {
+  if(pictures.totalHits === 0) {
 
-        if(pictures.totalHits === 0) {
-
-            // ЭТОТ IF НЕ РАБОТАЕТ
+      refs.loadMoreBtn.classList.add('is-hidden');
             
-            Notiflix.Notify.info('Sorry, there are no images matching your search query. Please try again.'); 
-        }
+      Notiflix.Notify.info('Sorry, there are no images matching your search query. Please try again.'); 
+      return;
+    }
+  refs.loadMoreBtn.classList.remove('is-hidden');
+   
+  const pictureList = pictures.hits.map(picture => {
 
-        
-        return `<div class="photo-card">
+    return `<div class="photo-card">
         <img src='${picture.webformatURL}' alt="${Object.values(picture.tags)}" loading="lazy" />
         <div class="info">
           <p class="info-item">
-            <b>Likes: ${picture.likes}</b>
+            <b>Likes ${picture.likes}</b>
           </p>
           <p class="info-item">
-            <b>Views: ${picture.views}</b>
+            <b>Views ${picture.views}</b>
           </p>
           <p class="info-item">
-            <b>Comments: ${picture.comments}</b>
+            <b>Comments ${picture.comments}</b>
           </p>
           <p class="info-item">
-            <b>Downloads: ${picture.downloads}</b>
+            <b>Downloads ${picture.downloads}</b>
           </p>
         </div>
       </div>`;
