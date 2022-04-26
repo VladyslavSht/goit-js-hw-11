@@ -53,7 +53,7 @@ async function fetchPictures(name) {
   });
 }
 
-function fetchResponse(pictures) {
+async function fetchResponse(pictures) {
   if(pictures.totalHits === 0) {
 
       refs.loadMoreBtn.classList.add('is-hidden');
@@ -63,7 +63,7 @@ function fetchResponse(pictures) {
     }
   refs.loadMoreBtn.classList.remove('is-hidden');
    
-  const pictureList = pictures.hits.map(picture => {
+  const pictureList = await pictures.hits.map(picture => {
 
     return `<div class="photo-card">
         <img src='${picture.webformatURL}' alt="${Object.values(picture.tags)}" loading="lazy" />
